@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Performance Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F1E7;
+    --paper-edge: #EDE6D6;
+    --ink: #20242B;
+    --ink-soft: #5B6372;
+    --indigo: #2C3A6B;
+    --green: #3F7D5B;
+    --clay: #B5602E;
+    --line: #D9D0BC;
+    --serif: 'Lora', Georgia, 'Times New Roman', serif;
+    --sans: 'Work Sans', -apple-system, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1B1C22;
+      --paper-edge: #24262E;
+      --ink: #ECE8DD;
+      --ink-soft: #ABA79C;
+      --indigo: #8AA0E8;
+      --green: #7FD8A8;
+      --clay: #E0935C;
+      --line: #34363F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B1C22; --paper-edge: #24262E; --ink: #ECE8DD; --ink-soft: #ABA79C;
+    --indigo: #8AA0E8; --green: #7FD8A8; --clay: #E0935C; --line: #34363F;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3.5rem;
+  }
+  header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 4vw, 2.3rem);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    max-width: 52ch;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1px 0.95fr;
+    gap: 2.25rem;
+  }
+  .divider { background: var(--line); }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .divider { display: none; }
+  }
+
+  .field { margin-bottom: 1.6rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .field-label { font-size: 0.92rem; font-weight: 500; }
+  .field-value {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--indigo);
+    min-width: 3.5ch;
+    text-align: right;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    outline: none;
+    margin: 0;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--clay);
+    cursor: pointer;
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--clay);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--clay);
+    cursor: pointer;
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--clay);
+  }
+  .field-hint { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.3rem; }
+
+  .score-block { text-align: left; }
+  .score-eyebrow { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.3rem; }
+  .score-row { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem; }
+  .score-number {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(3.2rem, 9vw, 4.4rem);
+    color: var(--indigo);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-grade {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: var(--green);
+    border: 1.5px solid var(--green);
+    border-radius: 999px;
+    padding: 0.15rem 0.7rem;
+  }
+  .score-sub { color: var(--ink-soft); font-size: 0.88rem; margin-bottom: 1.8rem; }
+
+  .contrib-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 0.7rem; color: var(--ink-soft); }
+  .bar-row { display: grid; grid-template-columns: 9.5rem 1fr; align-items: center; gap: 0.6rem; margin-bottom: 0.55rem; }
+  .bar-label { font-size: 0.82rem; }
+  .bar-track { position: relative; height: 10px; background: var(--line); border-radius: 2px; overflow: visible; }
+  .bar-fill { position: absolute; top: 0; height: 100%; border-radius: 2px; transition: width 0.25s ease, left 0.25s ease, background 0.25s ease; }
+  .bar-zero { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--ink-soft); opacity: 0.5; }
+
+  footer {
+    margin-top: 2.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Student Performance Predictor</h1>
+    <p class="subtitle">Adjust the sliders to see how study habits and background factors shape a predicted exam score, using a regression model trained on 600 students.</p>
+  </header>
+
+  <div class="grid">
+    <div class="fields">
+      <div class="field">
+        <div class="field-top"><span class="field-label">Study hours per day</span><span class="field-value" id="v-study">4.5</span></div>
+        <input type="range" id="study" min="0.5" max="10" step="0.1" value="4.5">
+        <div class="field-hint">Average time spent studying each day</div>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Attendance</span><span class="field-value" id="v-attendance">80%</span></div>
+        <input type="range" id="attendance" min="40" max="100" step="1" value="80">
+        <div class="field-hint">Share of classes attended this term</div>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Previous exam score</span><span class="field-value" id="v-previous">66</span></div>
+        <input type="range" id="previous" min="20" max="100" step="1" value="66">
+        <div class="field-hint">Score on the last exam, out of 100</div>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Sleep per night</span><span class="field-value" id="v-sleep">6.5h</span></div>
+        <input type="range" id="sleep" min="3" max="10" step="0.1" value="6.5">
+        <div class="field-hint">Average hours of sleep</div>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Extracurricular time</span><span class="field-value" id="v-extra">1.4h</span></div>
+        <input type="range" id="extra" min="0" max="6" step="0.1" value="1.4">
+        <div class="field-hint">Daily hours on clubs, sport, etc.</div>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Parental support</span><span class="field-value" id="v-parental">3 / 5</span></div>
+        <input type="range" id="parental" min="1" max="5" step="1" value="3">
+        <div class="field-hint">Household support level, self-rated</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="score-block">
+      <div class="score-eyebrow">Predicted final exam score</div>
+      <div class="score-row">
+        <span class="score-number" id="score">—</span>
+        <span class="score-grade" id="grade">—</span>
+      </div>
+      <p class="score-sub" id="scoreSub">Move a slider to see a prediction.</p>
+
+      <div class="contrib-title">What's pulling the score up or down</div>
+      <div id="bars"></div>
+    </div>
+  </div>
+
+  <footer>
+    Linear regression trained on 600 simulated students (R² = 0.69, mean error ≈ 3.9 points).
+    Bars show each factor's effect relative to an average student in the training data — not a guarantee for any individual.
+  </footer>
+</div>
+
+<script>
+  // Coefficients copied directly from the trained scikit-learn model
+  // (model/best_model.pkl) — this reproduces the same prediction client-side.
+  const FEATURES = [
+    { key: 'study',      label: 'Study hours',      mean: 4.437666666666667,  scale: 1.9174029672681976, coef: 3.5151548353186906 },
+    { key: 'attendance', label: 'Attendance',        mean: 80.55437500000001, scale: 11.666448582411087, coef: 2.5487510299532437 },
+    { key: 'previous',   label: 'Previous score',    mean: 65.9725,           scale: 14.839520502698191, coef: 5.54604131015403   },
+    { key: 'sleep',      label: 'Sleep',             mean: 6.452,             scale: 1.284211236518354,  coef: 1.9058325977535886 },
+    { key: 'extra',      label: 'Extracurriculars',  mean: 1.3998541666666666,scale: 1.307751640692008,  coef: 0.6888857099005024 },
+    { key: 'parental',   label: 'Parental support',  mean: 3.3208333333333333,scale: 1.0553353205919382, coef: 1.0076098165286769 },
+  ];
+  const INTERCEPT = 65.00416666666666;
+
+  const inputs = {};
+  FEATURES.forEach(f => inputs[f.key] = document.getElementById(f.key));
+
+  const fmt1 = (n) => Math.round(n * 10) / 10;
+
+  function gradeFor(score) {
+    if (score >= 90) return 'A';
+    if (score >= 80) return 'B';
+    if (score >= 70) return 'C';
+    if (score >= 60) return 'D';
+    return 'F';
+  }
+
+  function render() {
+    const vals = {};
+    FEATURES.forEach(f => vals[f.key] = parseFloat(inputs[f.key].value));
+
+    document.getElementById('v-study').textContent = fmt1(vals.study);
+    document.getElementById('v-attendance').textContent = Math.round(vals.attendance) + '%';
+    document.getElementById('v-previous').textContent = Math.round(vals.previous);
+    document.getElementById('v-sleep').textContent = fmt1(vals.sleep) + 'h';
+    document.getElementById('v-extra').textContent = fmt1(vals.extra) + 'h';
+    document.getElementById('v-parental').textContent = Math.round(vals.parental) + ' / 5';
+
+    let score = INTERCEPT;
+    const contributions = FEATURES.map(f => {
+      const z = (vals[f.key] - f.mean) / f.scale;
+      const c = f.coef * z;
+      score += c;
+      return { label: f.label, c };
+    });
+    score = Math.max(0, Math.min(100, score));
+
+    document.getElementById('score').textContent = fmt1(score);
+    document.getElementById('grade').textContent = gradeFor(score);
+    const sub = document.getElementById('scoreSub');
+    sub.textContent = score >= 70
+      ? 'On track for a strong result given these inputs.'
+      : score >= 50
+      ? 'A middling result — a couple of factors are holding this back.'
+      : 'Several factors are pulling this prediction down.';
+
+    const maxAbs = Math.max(1, ...contributions.map(c => Math.abs(c.c)));
+    const barsEl = document.getElementById('bars');
+    barsEl.innerHTML = '';
+    contributions
+      .slice()
+      .sort((a, b) => Math.abs(b.c) - Math.abs(a.c))
+      .forEach(c => {
+        const pct = (Math.abs(c.c) / maxAbs) * 48; // max half-width of track, in %
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        const color = c.c >= 0 ? 'var(--green)' : 'var(--clay)';
+        const left = c.c >= 0 ? '50%' : (50 - pct) + '%';
+        const width = pct + '%';
+        row.innerHTML = `
+          <span class="bar-label">${c.label}</span>
+          <div class="bar-track">
+            <div class="bar-zero"></div>
+            <div class="bar-fill" style="left:${left}; width:${width}; background:${color};"></div>
+          </div>`;
+        barsEl.appendChild(row);
+      });
+  }
+
+  Object.values(inputs).forEach(el => el.addEventListener('input', render));
+  render();
+</script>
+</body>
+</html>
